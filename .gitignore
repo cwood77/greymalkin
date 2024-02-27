@@ -1,0 +1,20 @@
+# WARNING - this file is generated when mono2 is imported
+#           do not edit it directly!
+
+*.swp
+/bin/*
+
+# mono2 source doesn't belong to clients!
+src/cmn/
+src/console/
+src/cui/
+src/file/
+src/tcatbin/
+src/tcatlib/
+src/test/
+mono2-after.mak
+mono2-before.mak
+mono2-sample-makefile.mak
+mono2-readme.txt
+
+# client extensions from my-gitignore follow here
