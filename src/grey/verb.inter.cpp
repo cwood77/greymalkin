@@ -15,6 +15,7 @@
 #endif
 
 #include "../window/api.hpp"
+#include "../content/api.hpp"
 
 namespace {
 
@@ -94,8 +95,8 @@ void command::run(console::iLog& l)
       &pWMan->create(screen));
 
    // bind command window
-   tcat::typePtr<window::iContentManager> pConMan;
-   cmn::autoService<window::iContentManager> _cm(*svcMan,*pConMan);
+   tcat::typePtr<content::iContentManager> pConMan;
+   cmn::autoService<content::iContentManager> _cm(*svcMan,*pConMan);
    pLayout->getIth(0).bind(pConMan->create("<cmd>"));
    pLayout->draw();
 

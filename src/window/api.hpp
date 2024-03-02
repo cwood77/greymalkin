@@ -18,6 +18,7 @@ public:
 
 class iCanvas {
 public:
+   virtual cui::iPort& annotate() = 0;
    virtual void drawInto(cui::iPort& p, size_t x, size_t y, size_t w, size_t h) = 0;
 };
 
@@ -29,27 +30,22 @@ class iContent : public iCommandProvider {
 public:
    virtual void addBinding(iWindow& wnd) = 0;
    virtual void rmBinding(iWindow& wnd) = 0;
-   virtual iCanvas& getCanvas() = 0;
+   virtual iCanvas& redraw(iWindow& wnd) = 0;
 };
 
-class iContentExpert {
+class iCursor : public iCommandProvider {
 public:
-   virtual ~iContentExpert() {}
-   virtual bool supports(const std::string& text) const = 0;
-   virtual iContent& create(const std::string& text) const = 0;
-};
-
-class iContentManager {
-public:
-   virtual ~iContentManager() {}
-   virtual iContent& create(const std::string& text) = 0;
+   virtual void redraw(cui::iPort& p) = 0;
 };
 
 // windows can find each other, know their dims and topRow (scrolling)
 class iWindow : public iCommandProvider {
 public:
-   virtual void onActivate(bool active) = 0;
+   virtual iCursor& getCursor() = 0;
+
    virtual void bind(iContent& b) = 0;
+
+   virtual void onActivate(bool active) = 0;
    virtual void draw() = 0;
 };
 
