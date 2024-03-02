@@ -2,6 +2,7 @@
 #include "../tcatlib/api.hpp"
 #include "api.hpp"
 #include <memory>
+#include <set>
 
 namespace window {
 namespace {
@@ -32,10 +33,17 @@ private:
    iWindow& m_wnd;
 };
 
+class window;
+
+class iLayoutInternal {
+public:
+   virtual void closeWindow(window& w) = 0;
+};
+
 class window : public iWindow {
 public:
-   window(cui::iPort& p, size_t w, size_t h)
-   : m_port(p), m_w(w), m_h(h), m_pContent(NULL)
+   window(iLayoutInternal& l, cui::iPort& p, size_t w, size_t h)
+   : m_layout(l), m_port(p), m_w(w), m_h(h), m_pContent(NULL)
    {
       m_pCursor.reset(new pntCursor(*this));
    }
@@ -48,6 +56,7 @@ public:
 
    virtual void provide(cui::keyMap& m)
    {
+      m.map(cui::keystroke::esc(),[&](auto&){ m_layout.closeWindow(*this); });
       m_pCursor->provide(m);
       m_pContent->provide(m);
    }
@@ -74,6 +83,7 @@ public:
    }
 
 private:
+   iLayoutInternal& m_layout;
    cui::iPort& m_port;
    size_t m_w;
    size_t m_h;
@@ -81,33 +91,58 @@ private:
    iContent *m_pContent;
 };
 
-class layout : public iLayout {
+class layout : public iLayout, private iLayoutInternal {
 public:
    explicit layout(cui::screenBuffer& screen)
    : m_screen(screen)
-   , m_wnd(m_screen.createPort(0,0,screen.getWidth(),screen.getHeight()),screen.getWidth(),screen.getHeight())
+   , m_pKd(NULL)
    {
-      m_wnd.onActivate(true);
-   }
-
-   virtual void provide(cui::keyMap& m)
-   {
-      m_wnd.provide(m);
+      m_wnds.insert(
+         new window(
+            *this,
+            m_screen.createPort(0,0,screen.getWidth(),screen.getHeight()),
+            screen.getWidth(),
+            screen.getHeight()));
+      getIth(0).onActivate(true);
    }
 
    virtual iWindow& getIth(size_t i)
    {
-      return m_wnd;
+      return **m_wnds.begin();
    }
 
    virtual void draw()
    {
-      m_wnd.draw();
+      for(auto *pWnd : m_wnds)
+         pWnd->draw();
+   }
+
+   virtual void provide(cui::keyDispatcher& d)
+   {
+      m_pKd = &d;
+
+      auto *pMap = new cui::keyMap();
+      m_pKd->push(*pMap);
+
+      for(auto *pWnd : m_wnds)
+         pWnd->provide(*pMap);
    }
 
 private:
+   virtual void closeWindow(window& w)
+   {
+      m_pKd->pop();
+
+      m_wnds.erase(&w);
+      delete &w;
+
+      if(m_wnds.size())
+         provide(*m_pKd);
+   }
+
    cui::screenBuffer& m_screen;
-   window m_wnd;
+   std::set<window*> m_wnds;
+   cui::keyDispatcher *m_pKd;
 };
 
 class manager : public iManager {

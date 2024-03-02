@@ -5,6 +5,7 @@
 #include <string>
 
 namespace cui { class iPort; }
+namespace cui { class keyDispatcher; }
 namespace cui { class keyMap; }
 namespace cui { class screenBuffer; }
 
@@ -50,11 +51,12 @@ public:
 };
 
 // collection of windows such that each addressable spot belongs to a window
-class iLayout : public iCommandProvider {
+class iLayout {
 public:
    virtual ~iLayout() {}
    virtual iWindow& getIth(size_t i) = 0;
    virtual void draw() = 0;
+   virtual void provide(cui::keyDispatcher& d) = 0;
 };
 
 class iManager {

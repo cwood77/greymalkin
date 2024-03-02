@@ -10,7 +10,7 @@
 #if 1
 #include "../cui/api.hpp"
 #include "../shared/config.hpp"
-#include "../shared/context.hpp"
+//#include "../shared/context.hpp"
 //#include "../shared/iCommandProvider.hpp"
 #endif
 
@@ -102,13 +102,14 @@ void command::run(console::iLog& l)
 
    // collect commands
    cui::keyDispatcher kRootD;
-   shared::context ctxt(config,R,kRootD);
+   //shared::context ctxt(config,R,kRootD);
    //cmn::autoService<shared::context> _c3(*svcMan,ctxt);
-   pLayout->provide(ctxt.getRootMap());
+   //pLayout->provide(ctxt.getRootMap());
+   pLayout->provide(kRootD);
 
    // run command loop
    cui::keySource kSrc;
-   kSrc.loop(ctxt.getDispatcher());
+   kSrc.loop(kRootD);
 }
 
 // TODO... maybe?

@@ -11,7 +11,6 @@ class content : public contentBase {
 public:
    virtual void provide(cui::keyMap& m)
    {
-      m.map(cui::keystroke::esc(),[&](auto& d){ d.pop(); });
    }
 
 protected:
