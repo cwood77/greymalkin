@@ -1,6 +1,6 @@
 #include "vPort-i.hpp"
 
-namespace window {
+namespace content {
 namespace impl {
 
 void virtualPort::writeTruncate(const std::string& text)
@@ -9,7 +9,7 @@ void virtualPort::writeTruncate(const std::string& text)
       write(text.c_str()[i]);
 }
 
-void virtualPort::draw(cui::iPort& p, size_t x, size_t y, size_t w, size_t h)
+void virtualPort::drawInto(cui::iPort& p, size_t x, size_t y, size_t w, size_t h)
 {
    for(size_t j=0;j<h;j++)
    {
@@ -32,4 +32,4 @@ void virtualPort::write(char c)
 }
 
 } // namespace impl
-} // namespace window
+} // namespace content

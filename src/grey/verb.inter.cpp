@@ -11,7 +11,7 @@
 #include "../cui/api.hpp"
 #include "../shared/config.hpp"
 #include "../shared/context.hpp"
-#include "../shared/iCommandProvider.hpp"
+//#include "../shared/iCommandProvider.hpp"
 #endif
 
 #include "../window/api.hpp"
@@ -74,7 +74,6 @@ void command::run(console::iLog& l)
    l.writeLnVerbose("inputPath is %s",oConfigPath.c_str());
    l.writeLnVerbose("outputPath is %s",oNotesPath.c_str());
 
-#if 1
    l.writeLnVerbose("loading config");
    cmn::autoReleasePtr<file::iSstFile> pFigFile(&fMan->bindFile<file::iSstFile>(
       (oNotesPath + "\\.grey.sst").c_str(),
@@ -84,6 +83,34 @@ void command::run(console::iLog& l)
    shared::config config(pFigFile->dict());
    cmn::autoService<shared::config> _c2(*svcMan,config);
 
+   l.writeLnVerbose("create screen");
+   cui::screenBuffer screen(config.getScreenWidth(),config.getScreenHeight());
+   cui::renderer R;
+   R.activate(&screen);
+
+   // create initial window
+   tcat::typePtr<window::iManager> pWMan;
+   std::unique_ptr<window::iLayout> pLayout(
+      &pWMan->create(screen));
+
+   // bind command window
+   tcat::typePtr<window::iContentManager> pConMan;
+   cmn::autoService<window::iContentManager> _cm(*svcMan,*pConMan);
+   pLayout->getIth(0).bind(pConMan->create("<cmd>"));
+   pLayout->draw();
+
+   // collect commands
+   cui::keyDispatcher kRootD;
+   shared::context ctxt(config,R,kRootD);
+   //cmn::autoService<shared::context> _c3(*svcMan,ctxt);
+   pLayout->provide(ctxt.getRootMap());
+
+   // run command loop
+   cui::keySource kSrc;
+   kSrc.loop(ctxt.getDispatcher());
+}
+
+// TODO... maybe?
    // initialize history service from journalfile
    //
    // paint global frame and set global keybindings
@@ -91,30 +118,8 @@ void command::run(console::iLog& l)
    // send "path" to file identifying expert
    //   expert paints screenBuffer and sets keybindings
 
-   cui::screenBuffer screen(config.getScreenWidth(),config.getScreenHeight());
-   cui::renderer R;
-   R.activate(&screen);
-
-   cui::keyDispatcher kRootD;
-   shared::context ctxt(config,R,kRootD);
-   cmn::autoService<shared::context> _c3(*svcMan,ctxt);
-
-   tcat::typePtr<window::iManager> pWMan;
-   std::unique_ptr<window::iLayout> pLayout(
-      &pWMan->create(screen));
-
-   tcat::typePtr<window::iModelPainter> pPainter;
-   auto& wnd = pLayout->getIth(0);
-   wnd.bind(*pPainter);
-   wnd.invalidate();
-
-   tcat::typeSet<shared::iCommandProvider> commands;
-   for(size_t i=0;i<commands.size();i++)
-      commands[i]->provide(ctxt);
-
-   cui::keySource kSrc;
-   kSrc.loop(ctxt.getDispatcher());
-#endif
-}
+   //tcat::typeSet<shared::iCommandProvider> commands;
+   //for(size_t i=0;i<commands.size();i++)
+   //   commands[i]->provide(ctxt);
 
 } // anonymous namespace

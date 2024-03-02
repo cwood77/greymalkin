@@ -1,8 +1,9 @@
 #include "../cmn/error.hpp"
 #include "../cui/api.hpp"
+#include "../window/api.hpp"
 #include <map>
 
-namespace window {
+namespace content {
 namespace impl {
 
 struct cellInfo {
@@ -14,7 +15,7 @@ struct cellInfo {
    char c;
 };
 
-class virtualPort : public cui::iPort {
+class virtualPort : public cui::iPort, public window::iCanvas {
 public:
    virtualPort() : m_x(0), m_y(0), m_fg(cui::fgcol::kWhite), m_bg(cui::bgcol::kBlack) {}
 
@@ -33,7 +34,7 @@ public:
    virtual cui::bgcol::type swapColor(cui::bgcol::type t)
    { auto rval = m_bg; insert(t); return rval; }
 
-   void draw(cui::iPort& p, size_t x, size_t y, size_t w, size_t h);
+   virtual void drawInto(cui::iPort& p, size_t x, size_t y, size_t w, size_t h);
 
 private:
    void write(char c);
@@ -47,4 +48,4 @@ private:
 };
 
 } // namespace impl
-} // namespace window
+} // namespace content
