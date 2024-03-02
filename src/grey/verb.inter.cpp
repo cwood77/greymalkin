@@ -93,6 +93,7 @@ void command::run(console::iLog& l)
    tcat::typePtr<window::iManager> pWMan;
    std::unique_ptr<window::iLayout> pLayout(
       &pWMan->create(screen));
+   cmn::autoService<window::iLayout> _pL(*svcMan,*pLayout);
 
    // bind command window
    tcat::typePtr<content::iContentManager> pConMan;

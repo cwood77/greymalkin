@@ -19,6 +19,8 @@ public:
       m.map(cui::keystroke('h'),[&](auto& d){ x++; m_wnd.draw(); });
    }
 
+   virtual void handleMessage(message& m) {}
+
    virtual void redraw(cui::iPort& p)
    {
       cui::autoColor<cui::bgcol::type> _c(p,cui::bgcol::kBrightBlue);
@@ -61,6 +63,14 @@ public:
       m_pContent->provide(m);
    }
 
+   virtual void handleMessage(message& m)
+   {
+      m_pCursor->handleMessage(m);
+      if(m.handled)
+         return;
+      m_pContent->handleMessage(m);
+   }
+
    virtual iCursor& getCursor() { return *m_pCursor; }
 
    virtual void bind(iContent& b)
@@ -95,6 +105,7 @@ class layout : public iLayout, private iLayoutInternal {
 public:
    explicit layout(cui::screenBuffer& screen)
    : m_screen(screen)
+   , m_pActive(NULL)
    , m_pKd(NULL)
    {
       m_wnds.insert(
@@ -103,7 +114,8 @@ public:
             m_screen.createPort(0,0,screen.getWidth(),screen.getHeight()),
             screen.getWidth(),
             screen.getHeight()));
-      getIth(0).onActivate(true);
+      m_pActive = &getIth(0);
+      m_pActive->onActivate(true);
    }
 
    virtual iWindow& getIth(size_t i)
@@ -128,6 +140,18 @@ public:
          pWnd->provide(*pMap);
    }
 
+   virtual void handleMessage(message& m)
+   {
+      if(m.broadcast)
+      {
+         for(auto *pWnd : m_wnds)
+            if(!m.handled)
+               pWnd->handleMessage(m);
+      }
+      else
+         m_pActive->handleMessage(m);
+   }
+
 private:
    virtual void closeWindow(window& w)
    {
@@ -142,6 +166,7 @@ private:
 
    cui::screenBuffer& m_screen;
    std::set<window*> m_wnds;
+   iWindow *m_pActive;
    cui::keyDispatcher *m_pKd;
 };
 

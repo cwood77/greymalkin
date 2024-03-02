@@ -11,10 +11,22 @@ namespace cui { class screenBuffer; }
 
 namespace window {
 
+class message {
+public:
+   explicit message(const std::string& key, bool broadcast = false)
+   : key(key), broadcast(broadcast), iResult(0), handled(false) {}
+   std::string key;
+   bool broadcast;
+   int iResult;
+   std::string sResult;
+   bool handled;
+};
+
 class iCommandProvider {
 public:
    virtual ~iCommandProvider() {}
    virtual void provide(cui::keyMap& m) = 0;
+   virtual void handleMessage(message& m) = 0;
 };
 
 class iCanvas {
@@ -54,9 +66,13 @@ public:
 class iLayout {
 public:
    virtual ~iLayout() {}
-   virtual iWindow& getIth(size_t i) = 0;
-   virtual void draw() = 0;
+
    virtual void provide(cui::keyDispatcher& d) = 0;
+   virtual void handleMessage(message& m) = 0;
+
+   virtual iWindow& getIth(size_t i) = 0;
+
+   virtual void draw() = 0;
 };
 
 class iManager {
