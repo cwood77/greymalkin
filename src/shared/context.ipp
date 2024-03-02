@@ -1,28 +1,30 @@
 inline context::context(config& c, cui::renderer& r, cui::iKeyDispatcher& kd)
-: m_bottomWidth(c.getScreenWidth())
-, m_bottomOffset(c.getStatusHeight()+1)
-, m_bottomHeight(c.getScreenHeight()-1-c.getStatusHeight())
-, m_screen(c.getScreenWidth(),c.getScreenHeight())
-, m_pTPane(&m_screen.createPort(
-   0,0,
-   c.getScreenWidth(),c.getStatusHeight()))
-, m_pMPane(&m_screen.createPort(
-   0,c.getStatusHeight(),
-   c.getScreenWidth(),1))
-, m_pBPane(&m_screen.createPort(
-   0,c.getStatusHeight()+1,
-   c.getScreenWidth(),m_bottomHeight))
+// : m_bottomWidth(c.getScreenWidth())
+// , m_bottomOffset(c.getStatusHeight()+1)
+// , m_bottomHeight(c.getScreenHeight()-1-c.getStatusHeight())
+// , m_screen(c.getScreenWidth(),c.getScreenHeight())
+// , m_pTPane(&m_screen.createPort(
+//    0,0,
+//    c.getScreenWidth(),c.getStatusHeight()))
+// , m_pMPane(&m_screen.createPort(
+//    0,c.getStatusHeight(),
+//    c.getScreenWidth(),1))
+// , m_pBPane(&m_screen.createPort(
+//    0,c.getStatusHeight()+1,
+//    c.getScreenWidth(),m_bottomHeight))
+: cX(0), cY(0)
 , m_dispatcher(kd)
 , m_pRootMap(new cui::keyMap())
 {
-   r.activate(&m_screen);
+   //r.activate(&m_screen);
 
-   m_pTPane->fill(' ');
-   m_pMPane->fill(cui::fgcol::kBrightBlue,cui::bgcol::kBlack,'=');
+   //m_pTPane->fill(' ');
+   //m_pMPane->fill(cui::fgcol::kBrightBlue,cui::bgcol::kBlack,'=');
 
    m_dispatcher.push(*m_pRootMap);
 }
 
+#if 0
 inline cui::iPort& context::getHitPane(size_t i)
 {
    if(i >= m_hitPanes.size())
@@ -54,6 +56,7 @@ inline void context::resizeHitPanes(size_t radius)
    if(m_hitPanes.size() > 3)
       m_hitPanes[3]->fill(cui::fgcol::kWhite,cui::bgcol::kBrightBlack,' ');
 }
+#endif
 
 inline cui::keyMap& context::getRootMap()
 {
@@ -64,9 +67,11 @@ inline cui::keyMap& context::getRootMap()
    return *m_pRootMap;
 }
 
+#if 0
 inline void context::clearHitPanes()
 {
    for(auto *pPort : m_hitPanes)
       delete pPort;
    m_hitPanes.clear();
 }
+#endif

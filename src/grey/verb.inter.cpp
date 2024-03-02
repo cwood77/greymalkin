@@ -11,9 +11,10 @@
 #include "../cui/api.hpp"
 #include "../shared/config.hpp"
 #include "../shared/context.hpp"
-#include "../shared/criteria.hpp"
 #include "../shared/iCommandProvider.hpp"
 #endif
+
+#include "../window/api.hpp"
 
 namespace {
 
@@ -76,27 +77,40 @@ void command::run(console::iLog& l)
 #if 1
    l.writeLnVerbose("loading config");
    cmn::autoReleasePtr<file::iSstFile> pFigFile(&fMan->bindFile<file::iSstFile>(
-      (oNotesPath + "\\.notenav.sst").c_str(),
+      (oNotesPath + "\\.grey.sst").c_str(),
       file::iFileManager::kReadOnly
    ));
    pFigFile->tie(l);
    shared::config config(pFigFile->dict());
    cmn::autoService<shared::config> _c2(*svcMan,config);
 
-   shared::criteriaManager critMan;
-   critMan.write([&](auto& c){ c.radius = config.getHitRadius(); });
-   cmn::autoService<shared::criteriaManager> _critManSvc(*svcMan,critMan);
+   // initialize history service from journalfile
+   //
+   // paint global frame and set global keybindings
+   //
+   // send "path" to file identifying expert
+   //   expert paints screenBuffer and sets keybindings
 
+   cui::screenBuffer screen(config.getScreenWidth(),config.getScreenHeight());
    cui::renderer R;
+   R.activate(&screen);
+
    cui::keyDispatcher kRootD;
    shared::context ctxt(config,R,kRootD);
    cmn::autoService<shared::context> _c3(*svcMan,ctxt);
 
+   tcat::typePtr<window::iManager> pWMan;
+   std::unique_ptr<window::iLayout> pLayout(
+      &pWMan->create(screen));
+
+   tcat::typePtr<window::iModelPainter> pPainter;
+   auto& wnd = pLayout->getIth(0);
+   wnd.bind(*pPainter);
+   wnd.invalidate();
+
    tcat::typeSet<shared::iCommandProvider> commands;
    for(size_t i=0;i<commands.size();i++)
       commands[i]->provide(ctxt);
-
-   critMan.write([&](auto& c){ c.radius = config.getHitRadius(); });
 
    cui::keySource kSrc;
    kSrc.loop(ctxt.getDispatcher());
