@@ -3,11 +3,27 @@
 #include "../tcatlib/api.hpp"
 #include "api-i.hpp"
 #include "api.hpp"
+#include "syntax-i.hpp"
 #include <fstream>
 
 namespace content {
 namespace impl {
 namespace {
+
+class syntaxColorer : public layeredSyntaxColorer {
+public:
+   syntaxColorer()
+   {
+      pNext = &m_adapter;
+      m_adapter.layers.push_back(&m_c);
+      m_adapter.layers.push_back(&m_cpp);
+   }
+
+private:
+   dictSyntaxColorerAdapter m_adapter;
+   cKeywordSyntaxColorer m_c;
+   cppKeywordSyntaxColorer m_cpp;
+};
 
 class content : public contentBase {
 public:
@@ -41,7 +57,7 @@ protected:
       for(auto it=m_lines.begin();it!=m_lines.end();++it,i++)
       {
          p << cui::relLoc(0,i);
-         p.writeTruncate(*it);
+         m_syntax.writeLine(*it,p);
       }
    }
 
@@ -62,6 +78,7 @@ private:
       return std::string("C:\\cygwin64\\home\\chris\\dev\\greymalkin\\src\\content\\") + m_fileName;
    }
 
+   syntaxColorer m_syntax;
    std::string m_fileName;
    std::list<std::string> m_lines;
 };

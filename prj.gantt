@@ -52,7 +52,7 @@ task task name |1hrs 100% asof 24/01/28
 task ================= almost usable |0hrs
 task 2 window layout with tiny command window |1hrs 100%
 task C++ window with hardcoded load |1hrs 100%
-task syntax coloring PoC|1hrs
+task syntax coloring PoC|1hrs 100%
 task C++ save/saveall cmd |1hrs
 task C++ insert mode |1hrs
 task transaction PoC|1hrs

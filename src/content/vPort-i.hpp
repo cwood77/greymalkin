@@ -1,3 +1,6 @@
+#ifndef ___content_vPort_i___
+#define ___content_vPort_i___
+
 #include "../cmn/error.hpp"
 #include "../cui/api.hpp"
 #include "../window/api.hpp"
@@ -53,3 +56,5 @@ private:
 
 } // namespace impl
 } // namespace content
+
+#endif // ___content_vPort_i___

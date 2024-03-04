@@ -29,6 +29,7 @@ CONTENT_SRC = \
 	src/content/command.cpp \
 	src/content/cpp.cpp \
 	src/content/main.cpp \
+	src/content/syntax.cpp \
 	src/content/vPort.cpp \
 
 CONTENT_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(CONTENT_SRC)))
