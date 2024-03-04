@@ -16,7 +16,7 @@ public:
       m.map(cui::keystroke('j'),[&](auto& d){ y++; m_wnd.draw(); });
       m.map(cui::keystroke('k'),[&](auto& d){ y--; m_wnd.draw(); });
       m.map(cui::keystroke('l'),[&](auto& d){ x++; m_wnd.draw(); });
-      m.map(cui::keystroke('h'),[&](auto& d){ x++; m_wnd.draw(); });
+      m.map(cui::keystroke('h'),[&](auto& d){ x--; m_wnd.draw(); });
    }
 
    virtual void handleMessage(message& m) {}
@@ -45,8 +45,10 @@ public:
 class window : public iWindow {
 public:
    window(iLayoutInternal& l, cui::iPort& p, size_t w, size_t h)
-   : m_layout(l), m_port(p), m_w(w), m_h(h), m_pContent(NULL)
+   : m_layout(l), m_pOPort(NULL), m_pIPort(NULL), m_w(0), m_h(0)
+   , m_pContent(NULL), m_active(false)
    {
+      resize(p,w,h);
       m_pCursor.reset(new pntCursor(*this));
    }
 
@@ -54,6 +56,8 @@ public:
    {
       if(m_pContent)
          m_pContent->rmBinding(*this);
+      delete m_pOPort;
+      delete m_pIPort;
    }
 
    virtual void provide(cui::keyMap& m)
@@ -83,22 +87,60 @@ public:
 
    virtual void onActivate(bool active)
    {
+      bool changed = (m_active != active);
+      if(!changed)
+         return;
+
+      m_active = active;
+      draw();
    }
 
    virtual void draw()
    {
-      auto& canvas = m_pContent->redraw(*this);
+      if(!m_pContent)
+         return;
+
+      std::string title;
+      auto& canvas = m_pContent->redraw(*this,title);
       m_pCursor->redraw(canvas.annotate());
-      canvas.drawInto(m_port,0,0,m_w,m_h);
+      drawBox(*m_pOPort,title);
+      canvas.drawInto(*m_pIPort,0,0,m_w-1,m_h-1);
+   }
+
+   void resize(cui::iPort& p, size_t w, size_t h)
+   {
+      if(m_pOPort)
+         delete m_pOPort;
+      if(m_pIPort)
+         delete m_pIPort;
+      m_pOPort = &p;
+      m_w = w;
+      m_h = h;
+      m_pIPort = &p.createSubPort(1,1,w-1,h-1);
    }
 
 private:
+   void drawBox(cui::iPort& p, const std::string& title)
+   {
+      p << cui::relLoc(0,0);
+      p.writeTruncate("+--");
+      p.writeTruncate(title);
+      p.writeTruncate(std::string(m_w-3-title.length(),'-'));
+      for(size_t y=1;y<m_h;y++)
+      {
+         p << cui::relLoc(0,y);
+         p.writeTruncate("|");
+      }
+   }
+
    iLayoutInternal& m_layout;
-   cui::iPort& m_port;
+   cui::iPort *m_pOPort;
+   cui::iPort *m_pIPort;
    size_t m_w;
    size_t m_h;
    std::unique_ptr<iCursor> m_pCursor;
    iContent *m_pContent;
+   bool m_active;
 };
 
 class layout : public iLayout, private iLayoutInternal {
@@ -108,19 +150,20 @@ public:
    , m_pActive(NULL)
    , m_pKd(NULL)
    {
-      m_wnds.insert(
+      m_wnds.push_back(
          new window(
             *this,
             m_screen.createPort(0,0,screen.getWidth(),screen.getHeight()),
             screen.getWidth(),
             screen.getHeight()));
+
       m_pActive = &getIth(0);
       m_pActive->onActivate(true);
    }
 
    virtual iWindow& getIth(size_t i)
    {
-      return **m_wnds.begin();
+      return *m_wnds[i];
    }
 
    virtual void draw()
@@ -157,7 +200,15 @@ private:
    {
       m_pKd->pop();
 
-      m_wnds.erase(&w);
+      for(auto it=m_wnds.begin();it!=m_wnds.end();++it)
+      {
+         if(*it == &w)
+         {
+            m_wnds.erase(it);
+            break;
+         }
+      }
+
       delete &w;
 
       if(m_wnds.size())
@@ -165,7 +216,7 @@ private:
    }
 
    cui::screenBuffer& m_screen;
-   std::set<window*> m_wnds;
+   std::vector<window*> m_wnds;
    iWindow *m_pActive;
    cui::keyDispatcher *m_pKd;
 };

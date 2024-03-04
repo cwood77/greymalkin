@@ -46,8 +46,10 @@ public:
    }
 
 protected:
-   virtual void _redraw(cui::iPort& p)
+   virtual void _redraw(cui::iPort& p, std::string& title)
    {
+      title = "greymalkin";
+
       size_t i=0;
       for(auto it=m_log.begin();it!=m_log.end();++it,i++)
       {

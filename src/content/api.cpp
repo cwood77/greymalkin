@@ -25,12 +25,12 @@ void contentBase::rmBinding(window::iWindow& wnd)
       delete this;
 }
 
-window::iCanvas& contentBase::redraw(window::iWindow& wnd)
+window::iCanvas& contentBase::redraw(window::iWindow& wnd, std::string& title)
 {
    virtualPort*& pCanvas = m_pWindows[&wnd];
    delete pCanvas;
    pCanvas = new virtualPort();
-   _redraw(*pCanvas);
+   _redraw(*pCanvas,title);
    return *pCanvas;
 }
 

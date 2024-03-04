@@ -43,7 +43,7 @@ class iContent : public iCommandProvider {
 public:
    virtual void addBinding(iWindow& wnd) = 0;
    virtual void rmBinding(iWindow& wnd) = 0;
-   virtual iCanvas& redraw(iWindow& wnd) = 0;
+   virtual iCanvas& redraw(iWindow& wnd, std::string& title) = 0;
 };
 
 class iCursor : public iCommandProvider {

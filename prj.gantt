@@ -1,0 +1,75 @@
+cdwe gantt 1.0
+
+weekday 0.25hrs
+saturday 2hrs
+sunday 3hrs
+
+# key commands
+# hjkl - movement
+# fF - save/saveall
+# open
+# reload
+# ?seplit
+
+# a VI-style editor for C++ development primarily; general editing secondarily
+# 
+# - session history
+#   - undo/redo
+# - file system browser plugin
+#   - duplicate
+#   - list
+#   - del
+#   - rename
+#   - edit
+#   - create
+# - readonly detection
+# - window
+#   - create/resize/close
+#   - top line/bottom line
+# - C++ text plugin
+#   - movement
+#     - by char
+#     - by page
+#     - by word
+#     - jump to text
+#     - by structure
+#       - out
+#       - start/end
+#   - selection
+#     - by char
+#     - by line
+#     - blockmode
+#     - set mark, jump mark
+#   - selection operations
+#     - uppercase/lowercase/pascalcase/camelcase/snakecase
+#     - indent/outdent
+#     - curly/uncurly
+#     - sort [u]
+#   - autosave (no manual way?)
+
+task task name |1hrs 100% asof 24/01/28
+
+task ================= almost usable |0hrs
+task 2 window layout with tiny command window |1hrs
+task C++ window with hardcoded load |1hrs
+task syntax coloring PoC|1hrs
+task C++ save/saveall cmd |1hrs
+task C++ insert mode |1hrs
+task transaction PoC|1hrs
+
+task ================= usable |0hrs
+task C++ load command |1hrs
+task scroll up/down |1hrs
+task scroll left/right |1hrs
+task more cursor commands (home) |1hrs
+
+task ================= closer |0hrs
+task whitespace coloring |1hrs
+task command wnd autoscroll |1hrs
+task undo/redo |1hrs
+
+task ================= cute |0hrs
+task x,y coordinates |1hrs
+task syntax coloring |1hrs
+task current word coloring |1hrs
+task splash window |1hrs

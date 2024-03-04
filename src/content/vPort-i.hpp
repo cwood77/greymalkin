@@ -34,6 +34,9 @@ public:
    virtual cui::bgcol::type swapColor(cui::bgcol::type t)
    { auto rval = m_bg; insert(t); return rval; }
 
+   virtual iPort& createSubPort(size_t x, size_t y, size_t width, size_t height)
+   { throw cmn::unimplemented(cdwHere).raise(); }
+
    virtual cui::iPort& annotate() { return *this; }
    virtual void drawInto(cui::iPort& p, size_t x, size_t y, size_t w, size_t h);
 

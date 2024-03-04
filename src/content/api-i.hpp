@@ -14,10 +14,10 @@ public:
 
    virtual void addBinding(window::iWindow& wnd);
    virtual void rmBinding(window::iWindow& wnd);
-   virtual window::iCanvas& redraw(window::iWindow& wnd);
+   virtual window::iCanvas& redraw(window::iWindow& wnd, std::string& title);
 
 protected:
-   virtual void _redraw(cui::iPort& p) = 0;
+   virtual void _redraw(cui::iPort& p, std::string& title) = 0;
    void onChanged();
 
 private:
