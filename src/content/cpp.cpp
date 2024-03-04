@@ -12,23 +12,10 @@ class content : public contentBase {
 public:
    content()
    {
-      m_log.push_back("booted");
    }
 
    virtual void provide(bool active, cui::keyMap& m)
    {
-      m.map(cui::keystroke('f'),[&](auto&)
-      {
-         window::message m("save");
-         sendMessage(m);
-         logSinglecastMessageResult(m);
-      });
-      m.map(cui::keystroke('F'),[&](auto&)
-      {
-         window::message m("saveAll",/*broadcast*/true);
-         sendMessage(m);
-         logMulticastMessageResult(m);
-      });
    }
 
    virtual void handleMessage(bool active, window::message& m)
@@ -56,35 +43,12 @@ protected:
    }
 
 private:
-   void sendMessage(window::message& m)
-   {
-      tcat::typePtr<cmn::serviceManager> svcMan;
-      auto& l = svcMan->demand<window::iLayout>();
-      l.handleMessage(m);
-   }
-
-   void logSinglecastMessageResult(window::message& m)
-   {
-      std::stringstream stream;
-      stream << m.key << ": " << m.sResult;
-      m_log.push_back(stream.str());
-      onChanged();
-   }
-
-   void logMulticastMessageResult(window::message& m)
-   {
-      std::stringstream stream;
-      stream << m.key << ": " << m.iResult << " done";
-      m_log.push_back(stream.str());
-      onChanged();
-   }
-
    std::list<std::string> m_log;
 };
 
 class expert : public iContentExpert {
 public:
-   virtual bool supports(const std::string& text) const { return text == "<cmd>"; }
+   virtual bool supports(const std::string& text) const { return text == "<C++>"; }
    virtual window::iContent& create(const std::string&) const { return *new content; }
 };
 

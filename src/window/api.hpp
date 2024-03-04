@@ -25,8 +25,8 @@ public:
 class iCommandProvider {
 public:
    virtual ~iCommandProvider() {}
-   virtual void provide(cui::keyMap& m) = 0;
-   virtual void handleMessage(message& m) = 0;
+   virtual void provide(bool active, cui::keyMap& m) = 0;
+   virtual void handleMessage(bool active, message& m) = 0;
 };
 
 class iCanvas {
@@ -48,12 +48,17 @@ public:
 
 class iCursor : public iCommandProvider {
 public:
-   virtual void redraw(cui::iPort& p) = 0;
+   virtual void redraw(bool active, cui::iPort& p) = 0;
 };
 
 // windows can find each other, know their dims and topRow (scrolling)
-class iWindow : public iCommandProvider {
+class iWindow {
 public:
+   virtual ~iWindow() {}
+
+   virtual void provide(cui::keyMap& m) = 0;
+   virtual void handleMessage(message& m) = 0;
+
    virtual iCursor& getCursor() = 0;
 
    virtual void bind(iContent& b) = 0;

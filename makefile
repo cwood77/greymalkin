@@ -27,6 +27,7 @@ include mono2-after.mak
 CONTENT_SRC = \
 	src/content/api.cpp \
 	src/content/command.cpp \
+	src/content/cpp.cpp \
 	src/content/main.cpp \
 	src/content/vPort.cpp \
 

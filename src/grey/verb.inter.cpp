@@ -99,6 +99,7 @@ void command::run(console::iLog& l)
    tcat::typePtr<content::iContentManager> pConMan;
    cmn::autoService<content::iContentManager> _cm(*svcMan,*pConMan);
    pLayout->getIth(0).bind(pConMan->create("<cmd>"));
+   pLayout->getIth(1).bind(pConMan->create("<C++>"));
    pLayout->draw();
 
    // collect commands

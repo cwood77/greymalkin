@@ -11,21 +11,27 @@ class pntCursor : public iCursor {
 public:
    explicit pntCursor(iWindow& owner) : x(0), y(0), m_wnd(owner) {}
 
-   virtual void provide(cui::keyMap& m)
+   virtual void provide(bool active, cui::keyMap& m)
    {
-      m.map(cui::keystroke('j'),[&](auto& d){ y++; m_wnd.draw(); });
-      m.map(cui::keystroke('k'),[&](auto& d){ y--; m_wnd.draw(); });
-      m.map(cui::keystroke('l'),[&](auto& d){ x++; m_wnd.draw(); });
-      m.map(cui::keystroke('h'),[&](auto& d){ x--; m_wnd.draw(); });
+      if(active)
+      {
+         m.map(cui::keystroke('j'),[&](auto& d){ y++; m_wnd.draw(); });
+         m.map(cui::keystroke('k'),[&](auto& d){ y--; m_wnd.draw(); });
+         m.map(cui::keystroke('l'),[&](auto& d){ x++; m_wnd.draw(); });
+         m.map(cui::keystroke('h'),[&](auto& d){ x--; m_wnd.draw(); });
+      }
    }
 
-   virtual void handleMessage(message& m) {}
+   virtual void handleMessage(bool active, message& m) {}
 
-   virtual void redraw(cui::iPort& p)
+   virtual void redraw(bool active, cui::iPort& p)
    {
-      cui::autoColor<cui::bgcol::type> _c(p,cui::bgcol::kBrightBlue);
-      p << cui::relLoc(x,y);
-      p.writeTruncate(" ");
+      if(active)
+      {
+         cui::autoColor<cui::bgcol::type> _c(p,cui::bgcol::kBrightBlue);
+         p << cui::relLoc(x,y);
+         p.writeTruncate(" ");
+      }
    }
 
    size_t x;
@@ -63,16 +69,16 @@ public:
    virtual void provide(cui::keyMap& m)
    {
       m.map(cui::keystroke::esc(),[&](auto&){ m_layout.closeWindow(*this); });
-      m_pCursor->provide(m);
-      m_pContent->provide(m);
+      m_pCursor->provide(m_active,m);
+      m_pContent->provide(m_active,m);
    }
 
    virtual void handleMessage(message& m)
    {
-      m_pCursor->handleMessage(m);
+      m_pCursor->handleMessage(m_active,m);
       if(m.handled)
          return;
-      m_pContent->handleMessage(m);
+      m_pContent->handleMessage(m_active,m);
    }
 
    virtual iCursor& getCursor() { return *m_pCursor; }
@@ -102,7 +108,7 @@ public:
 
       std::string title;
       auto& canvas = m_pContent->redraw(*this,title);
-      m_pCursor->redraw(canvas.annotate());
+      m_pCursor->redraw(m_active,canvas.annotate());
       drawBox(*m_pOPort,title);
       canvas.drawInto(*m_pIPort,0,0,m_w-1,m_h-1);
    }
@@ -122,6 +128,7 @@ public:
 private:
    void drawBox(cui::iPort& p, const std::string& title)
    {
+      cui::autoColor<cui::bgcol::type> _c(p,cui::bgcol::kBrightBlack,m_active);
       p << cui::relLoc(0,0);
       p.writeTruncate("+--");
       p.writeTruncate(title);
@@ -150,14 +157,32 @@ public:
    , m_pActive(NULL)
    , m_pKd(NULL)
    {
+      // H = 10
+      // 0 C++
+      // 1 C++
+      // 2 C++
+      // 3 C++
+      // 4 C++
+      // 5 C++
+      // 6 C++
+      // 7 status
+      // 8 status
+      // 9 status
+
       m_wnds.push_back(
          new window(
             *this,
-            m_screen.createPort(0,0,screen.getWidth(),screen.getHeight()),
+            m_screen.createPort(0,screen.getHeight()-3,screen.getWidth(),3),
             screen.getWidth(),
-            screen.getHeight()));
+            3));
+      m_wnds.push_back(
+         new window(
+            *this,
+            m_screen.createPort(0,0,screen.getWidth(),screen.getHeight()-3),
+            screen.getWidth(),
+            screen.getHeight()-3));
 
-      m_pActive = &getIth(0);
+      m_pActive = &getIth(1);
       m_pActive->onActivate(true);
    }
 
@@ -211,7 +236,7 @@ private:
 
       delete &w;
 
-      if(m_wnds.size())
+      if(m_wnds.size() > 1)
          provide(*m_pKd);
    }
 
