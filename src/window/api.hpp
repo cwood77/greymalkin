@@ -14,10 +14,11 @@ namespace window {
 class message {
 public:
    explicit message(const std::string& key, bool broadcast = false)
-   : key(key), broadcast(broadcast), iResult(0), handled(false) {}
+   : key(key), broadcast(broadcast), iResult(0), iResult2(0), handled(false) {}
    std::string key;
    bool broadcast;
    int iResult;
+   int iResult2;
    std::string sResult;
    bool handled;
 };

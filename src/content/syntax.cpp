@@ -57,7 +57,9 @@ cppKeywordSyntaxColorer::cppKeywordSyntaxColorer()
    addWord("class");
    addWord("namespace");
    addWord("private");
+   addWord("private:");
    addWord("public");
+   addWord("public:");
    addWord("virtual");
 }
 

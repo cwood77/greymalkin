@@ -104,6 +104,7 @@ void command::run(console::iLog& l)
 
    // collect commands
    cui::keyDispatcher kRootD;
+   cmn::autoService<cui::iKeyDispatcher> _kd(*svcMan,kRootD);
    //shared::context ctxt(config,R,kRootD);
    //cmn::autoService<shared::context> _c3(*svcMan,ctxt);
    //pLayout->provide(ctxt.getRootMap());

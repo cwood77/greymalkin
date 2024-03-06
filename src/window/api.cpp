@@ -1,3 +1,4 @@
+#include "../cmn/service.hpp"
 #include "../cui/api.hpp"
 #include "../tcatlib/api.hpp"
 #include "api.hpp"
@@ -7,22 +8,52 @@
 namespace window {
 namespace {
 
+class iCursorDest {
+public:
+   virtual void cursorCoordToAbsCoord(size_t& x, size_t& y) = 0;
+   virtual void onCursorMoved() = 0;
+};
+
 class pntCursor : public iCursor {
 public:
-   explicit pntCursor(iWindow& owner) : x(0), y(0), m_wnd(owner) {}
+   explicit pntCursor(iCursorDest& owner) : x(0), y(0), m_wnd(owner) {}
 
    virtual void provide(bool active, cui::keyMap& m)
    {
       if(active)
       {
-         m.map(cui::keystroke('j'),[&](auto& d){ y++; m_wnd.draw(); });
-         m.map(cui::keystroke('k'),[&](auto& d){ y--; m_wnd.draw(); });
-         m.map(cui::keystroke('l'),[&](auto& d){ x++; m_wnd.draw(); });
-         m.map(cui::keystroke('h'),[&](auto& d){ x--; m_wnd.draw(); });
+         m.map(cui::keystroke('j'),[&](auto& d){ y++; m_wnd.onCursorMoved(); });
+         m.map(cui::keystroke('k'),[&](auto& d){ y--; m_wnd.onCursorMoved(); });
+         m.map(cui::keystroke('l'),[&](auto& d){ x++; m_wnd.onCursorMoved(); });
+         m.map(cui::keystroke('h'),[&](auto& d){ x--; m_wnd.onCursorMoved(); });
+
+         m.map(cui::keystroke('i'),[&](auto& d)
+         {
+            window::message m("beginInput");
+            size_t _x = x;
+            size_t _y = y;
+            m_wnd.cursorCoordToAbsCoord(_x,_y);
+            m.iResult = _x;
+            m.iResult2 = _y;
+            tcat::typePtr<cmn::serviceManager> svcMan;
+            auto& l = svcMan->demand<window::iLayout>();
+            l.handleMessage(m);
+            x = m.iResult;
+            y = m.iResult2;
+            m_wnd.onCursorMoved();
+         });
       }
    }
 
-   virtual void handleMessage(bool active, message& m) {}
+   virtual void handleMessage(bool active, message& m)
+   {
+      if(active && m.key == "moveCursor" && !m.handled)
+      {
+         x += m.iResult2;
+         m.handled = true;
+         m_wnd.onCursorMoved();
+      }
+   }
 
    virtual void redraw(bool active, cui::iPort& p)
    {
@@ -38,7 +69,7 @@ public:
    size_t y;
 
 private:
-   iWindow& m_wnd;
+   iCursorDest& m_wnd;
 };
 
 class window;
@@ -48,7 +79,7 @@ public:
    virtual void closeWindow(window& w) = 0;
 };
 
-class window : public iWindow {
+class window : public iWindow, private iCursorDest {
 public:
    window(iLayoutInternal& l, cui::iPort& p, size_t w, size_t h)
    : m_layout(l), m_pOPort(NULL), m_pIPort(NULL), m_w(0), m_h(0)
@@ -126,6 +157,10 @@ public:
    }
 
 private:
+   virtual void cursorCoordToAbsCoord(size_t& x, size_t& y) {}
+
+   virtual void onCursorMoved() { draw(); }
+
    void drawBox(cui::iPort& p, const std::string& title)
    {
       cui::autoColor<cui::bgcol::type> _c(p,cui::bgcol::kBrightBlack,m_active);
