@@ -1,13 +1,9 @@
 #ifndef ___window_api___
 #define ___window_api___
 
+#include "../cui/api.hpp"
 #include <cstddef>
 #include <string>
-
-namespace cui { class iPort; }
-namespace cui { class keyDispatcher; }
-namespace cui { class keyMap; }
-namespace cui { class screenBuffer; }
 
 namespace window {
 
@@ -32,7 +28,7 @@ public:
 
 class iCanvas {
 public:
-   virtual cui::iPort& annotate() = 0;
+   virtual void backlight(size_t x, size_t y, cui::bgcol::type bg) = 0;
    virtual void drawInto(cui::iPort& p, size_t x, size_t y, size_t w, size_t h) = 0;
 };
 
@@ -49,7 +45,7 @@ public:
 
 class iCursor : public iCommandProvider {
 public:
-   virtual void redraw(bool active, cui::iPort& p) = 0;
+   virtual void redraw(bool active, iCanvas& c) = 0;
 };
 
 // windows can find each other, know their dims and topRow (scrolling)

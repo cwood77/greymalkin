@@ -9,6 +9,11 @@ void virtualPort::writeTruncate(const std::string& text)
       write(text.c_str()[i]);
 }
 
+void virtualPort::backlight(size_t x, size_t y, cui::bgcol::type bg)
+{
+   m_yxMap[y][x].bg = bg;
+}
+
 void virtualPort::drawInto(cui::iPort& p, size_t x, size_t y, size_t w, size_t h)
 {
    for(size_t j=0;j<h;j++)

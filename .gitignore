@@ -18,3 +18,7 @@ mono2-sample-makefile.mak
 mono2-readme.txt
 
 # client extensions from my-gitignore follow here
+
+# don't submit gantt output
+gantt.html
+

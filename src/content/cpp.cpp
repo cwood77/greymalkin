@@ -14,12 +14,14 @@ class syntaxColorer : public layeredSyntaxColorer {
 public:
    syntaxColorer()
    {
-      pNext = &m_adapter;
+      pNext = &m_q;
+      m_q.pNext = &m_adapter;
       m_adapter.layers.push_back(&m_c);
       m_adapter.layers.push_back(&m_cpp);
    }
 
 private:
+   quoteSyntaxColorer m_q;
    dictSyntaxColorerAdapter m_adapter;
    cKeywordSyntaxColorer m_c;
    cppKeywordSyntaxColorer m_cpp;

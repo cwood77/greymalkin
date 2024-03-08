@@ -46,6 +46,41 @@ bool dictSyntaxColorerBase::writeWord(const std::string& word, cui::iPort& p) co
    return found;
 }
 
+void quoteSyntaxColorer::writeText(const char *pText, cui::iPort& p)
+{
+   const char *pStart = pText;
+   const char *pThumb = pStart;
+   for(;*pThumb!=0;++pThumb)
+   {
+      if(*pThumb == '"')
+      {
+         std::string segment(pStart,pThumb-pStart);
+         _writeText(segment,m_inQuote,p);
+         _writeText("\"",true,p);
+         m_inQuote = !m_inQuote;
+         pThumb++;
+         pStart = pThumb;
+      }
+   }
+
+   std::string segment(pStart,pThumb-pStart);
+   _writeText(segment,m_inQuote,p);
+}
+
+void quoteSyntaxColorer::_writeText(const std::string& text, bool quoted, cui::iPort& p)
+{
+   if(!quoted)
+   {
+      if(pNext)
+         pNext->writeText(text.c_str(),p);
+   }
+   else
+   {
+      cui::autoColor<cui::fgcol::type> _c(p,cui::fgcol::kBrightMagenta);
+      p.writeTruncate(text);
+   }
+}
+
 cKeywordSyntaxColorer::cKeywordSyntaxColorer()
 {
    addWord("#define");

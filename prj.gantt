@@ -53,8 +53,8 @@ task ================= almost usable |0hrs
 task 2 window layout with tiny command window |1hrs 100%
 task C++ window with hardcoded load |1hrs 100%
 task syntax coloring PoC|1hrs 100%
-task C++ save/saveall cmd |1hrs
-task C++ insert mode |1hrs
+task C++ save/saveall cmd |1hrs 100%
+task C++ input mode |1hrs 100%
 task transaction PoC|1hrs
 
 task ================= usable |0hrs
@@ -67,9 +67,17 @@ task ================= closer |0hrs
 task whitespace coloring |1hrs
 task command wnd autoscroll |1hrs
 task undo/redo |1hrs
+task cursor just has back hilight |1hrs
+task line cursor mode |1hrs
+task block cursor mode |1hrs
+task word cursor mode |1hrs
 
 task ================= cute |0hrs
 task x,y coordinates |1hrs
 task syntax coloring |1hrs
 task current word coloring |1hrs
 task splash window |1hrs
+
+task ================= rest |0hrs
+task help |1hrs
+task del key in input mode |1hrs

@@ -69,7 +69,14 @@ private:
 
 class quoteSyntaxColorer : public iCharSyntaxColorer {
 public:
+   quoteSyntaxColorer() : m_inQuote(false) {}
+
    virtual void writeText(const char *pText, cui::iPort& p);
+
+private:
+   void _writeText(const std::string& text, bool quoted, cui::iPort& p);
+
+   bool m_inQuote;
 };
 
 class cCommentSyntaxColorer : public iCharSyntaxColorer {};

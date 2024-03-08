@@ -63,14 +63,10 @@ public:
       }
    }
 
-   virtual void redraw(bool active, cui::iPort& p)
+   virtual void redraw(bool active, iCanvas& c)
    {
       if(active)
-      {
-         cui::autoColor<cui::bgcol::type> _c(p,cui::bgcol::kBrightBlue);
-         p << cui::relLoc(x,y);
-         p.writeTruncate(" ");
-      }
+         c.backlight(x,y,cui::bgcol::kBrightBlue);
    }
 
    size_t x;
@@ -147,7 +143,7 @@ public:
 
       std::string title;
       auto& canvas = m_pContent->redraw(*this,title);
-      m_pCursor->redraw(m_active,canvas.annotate());
+      m_pCursor->redraw(m_active,canvas);
       drawBox(*m_pOPort,title);
       canvas.drawInto(*m_pIPort,0,0,m_w-1,m_h-1);
    }
