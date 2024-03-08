@@ -48,18 +48,25 @@ bool dictSyntaxColorerBase::writeWord(const std::string& word, cui::iPort& p) co
 
 cKeywordSyntaxColorer::cKeywordSyntaxColorer()
 {
+   addWord("#define");
+   addWord("#endif");
+   addWord("#ifndef");
    addWord("#include");
+   addWord("return");
+   addWord("void");
 }
 
 cppKeywordSyntaxColorer::cppKeywordSyntaxColorer()
 {
    addWord("bool");
    addWord("class");
+   addWord("const");
    addWord("namespace");
    addWord("private");
    addWord("private:");
    addWord("public");
    addWord("public:");
+   addWord("size_t");
    addWord("virtual");
 }
 

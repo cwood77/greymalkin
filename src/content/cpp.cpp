@@ -36,22 +36,55 @@ public:
       if(k == cui::keystroke::esc())
       {
          d.pop();
-         return;
       }
+      else if(k == cui::keystroke::enter())
+      {
+         auto& line = m_lines[m_y];
+         std::string before(line.c_str(),m_x);
+         std::string after(line.c_str()+m_x);
+         line = before;
+         m_lines.insert(m_lines.begin()+1+m_y,after);
 
-      auto& line = m_lines[m_y];
-      std::string before(line.c_str(),m_x);
-      std::string after(line.c_str()+m_x);
-      line = before;
-      line += std::string(1,k.getChar());
-      line += after;
+         window::message m("moveCursor");
+         m.iResult = 1;
+         tcat::typePtr<cmn::serviceManager> svcMan;
+         auto& l = svcMan->demand<window::iLayout>();
+         l.handleMessage(m);
+         m_y++;
+         m_x = 0;
+      }
+      else if(k == cui::keystroke::backspace())
+      {
+         auto& line = m_lines[m_y];
+         std::string before(line.c_str(),m_x-1);
+         std::string after(line.c_str()+m_x);
+         line = before;
+         line += after;
 
-      window::message m("moveCursor");
-      m.iResult2 = 1;
-      tcat::typePtr<cmn::serviceManager> svcMan;
-      auto& l = svcMan->demand<window::iLayout>();
-      l.handleMessage(m);
-      m_x++;
+         window::message m("moveCursor");
+         m.iResult2 = -1;
+         tcat::typePtr<cmn::serviceManager> svcMan;
+         auto& l = svcMan->demand<window::iLayout>();
+         l.handleMessage(m);
+         m_x--;
+      }
+      // delete
+      else // other
+      {
+         auto& line = m_lines[m_y];
+         std::string before(line.c_str(),m_x);
+         std::string after(line.c_str()+m_x);
+         line = before;
+         line += std::string(1,k.getChar());
+         line += after;
+
+         window::message m("moveCursor");
+         m.iResult2 = 1;
+         tcat::typePtr<cmn::serviceManager> svcMan;
+         auto& l = svcMan->demand<window::iLayout>();
+         l.handleMessage(m);
+         m_x++;
+      }
    }
 
 private:
@@ -63,7 +96,7 @@ private:
 class content : public contentBase {
 public:
    content()
-   : m_fileName("cpp.cpp")
+   : m_fileName("src\\shared\\context.hpp")
    {
       load();
    }
@@ -74,11 +107,15 @@ public:
    {
       if(active && m.key == "save" && !m.handled)
       {
-         m.sResult = "unimplemented";
+         save();
+         m.sResult = "saved";
          m.handled = true;
       }
       else if(m.key == "saveAll")
+      {
+         save();
          m.iResult++;
+      }
       else if(m.key == "beginInput" && !m.handled)
       {
          adjustCoordsToNearestChar(m.iResult,m.iResult2);
@@ -122,9 +159,23 @@ private:
       }
    }
 
+   void save()
+   {
+      std::ofstream file(HACKPATH().c_str());
+      bool first = true;
+      for(auto& line : m_lines)
+      {
+         if(first)
+            first = false;
+         else
+            file << std::endl;
+         file << line;
+      }
+   }
+
    std::string HACKPATH() const
    {
-      return std::string("C:\\cygwin64\\home\\chris\\dev\\greymalkin\\src\\content\\") + m_fileName;
+      return std::string("C:\\cygwin64\\home\\chris\\dev\\greymalkin\\") + m_fileName;
    }
 
    syntaxColorer m_syntax;

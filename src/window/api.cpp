@@ -49,7 +49,15 @@ public:
    {
       if(active && m.key == "moveCursor" && !m.handled)
       {
-         x += m.iResult2;
+         if(m.iResult)
+         {
+            y += m.iResult;
+            x = 0;
+         }
+         else
+         {
+            x += m.iResult2;
+         }
          m.handled = true;
          m_wnd.onCursorMoved();
       }
