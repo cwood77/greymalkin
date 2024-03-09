@@ -8,9 +8,11 @@ RELEASE_CC_FLAGS += -D cdwAppDataName=\"grey\"
 all: \
 	$(OUT_DIR)/debug/content.dll \
 	$(OUT_DIR)/debug/grey.exe \
+	$(OUT_DIR)/debug/trans.dll \
 	$(OUT_DIR)/debug/window.dll \
 	$(OUT_DIR)/release/content.dll \
 	$(OUT_DIR)/release/grey.exe \
+	$(OUT_DIR)/release/trans.dll \
 	$(OUT_DIR)/release/window.dll \
 	mono2_all
 
@@ -28,6 +30,7 @@ CONTENT_SRC = \
 	src/content/api.cpp \
 	src/content/command.cpp \
 	src/content/cpp.cpp \
+	src/content/cpp.trans.cpp \
 	src/content/main.cpp \
 	src/content/syntax.cpp \
 	src/content/vPort.cpp \
@@ -86,6 +89,37 @@ $(OUT_DIR)/release/grey.exe: $(GREYT_RELEASE_OBJ) $(OUT_DIR)/release/tcatlib.lib
 $(GREYT_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 	$(info $< --> $@)
 	@mkdir -p $(OBJ_DIR)/release/grey
+	@$(COMPILE_CMD) $(RELEASE_CC_FLAGS) $< -o $@
+
+# ----------------------------------------------------------------------
+# trans
+
+TRANS_SRC = \
+	src/trans/api.cpp \
+	src/trans/main.cpp \
+
+TRANS_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(TRANS_SRC)))
+
+$(OUT_DIR)/debug/trans.dll: $(TRANS_DEBUG_OBJ) $(OUT_DIR)/debug/tcatlib.lib
+	$(info $< --> $@)
+	@mkdir -p $(OUT_DIR)/debug
+	@$(LINK_CMD) -shared -o $@ $(TRANS_DEBUG_OBJ) $(DEBUG_LNK_FLAGS_POST) -Lbin/out/debug -ltcatlib
+
+$(TRANS_DEBUG_OBJ): $(OBJ_DIR)/debug/%.o: src/%.cpp
+	$(info $< --> $@)
+	@mkdir -p $(OBJ_DIR)/debug/trans
+	@$(COMPILE_CMD) $(DEBUG_CC_FLAGS) $< -o $@
+
+TRANS_RELEASE_OBJ = $(subst src,$(OBJ_DIR)/release,$(patsubst %.cpp,%.o,$(TRANS_SRC)))
+
+$(OUT_DIR)/release/trans.dll: $(TRANS_RELEASE_OBJ) $(OUT_DIR)/release/tcatlib.lib
+	$(info $< --> $@)
+	@mkdir -p $(OUT_DIR)/release
+	@$(LINK_CMD) -shared -o $@ $(TRANS_RELEASE_OBJ) $(RELEASE_LNK_FLAGS_POST) -Lbin/out/release -ltcatlib
+
+$(TRANS_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
+	$(info $< --> $@)
+	@mkdir -p $(OBJ_DIR)/release/trans
 	@$(COMPILE_CMD) $(RELEASE_CC_FLAGS) $< -o $@
 
 # ----------------------------------------------------------------------

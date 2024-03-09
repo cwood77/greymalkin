@@ -17,7 +17,29 @@
 #include "../window/api.hpp"
 #include "../content/api.hpp"
 
+#include "../trans/api.hpp"
+
 namespace {
+
+class myProvider : public trans::iTransactionTargetProvider {
+public:
+   explicit myProvider(window::iLayout& l) : m_l(l) {}
+
+   virtual trans::iTransactionTarget& getTarget(const std::string& name)
+   {
+      window::message m("findTransactionTarget");
+      m.sResult = name;
+      m_l.handleMessage(m);
+      if(!m.handled)
+         cmn::error(cdwHere,"can't find target")
+            .with("target name",name)
+            .raise();
+      return *reinterpret_cast<trans::iTransactionTarget*>(m.pPtr);
+   }
+
+private:
+   window::iLayout& m_l;
+};
 
 class command : public console::iCommand {
 public:
@@ -94,6 +116,12 @@ void command::run(console::iLog& l)
    std::unique_ptr<window::iLayout> pLayout(
       &pWMan->create(screen));
    cmn::autoService<window::iLayout> _pL(*svcMan,*pLayout);
+
+   // create transaction manager and bind it
+   myProvider ttProv(*pLayout);
+   tcat::typePtr<trans::iTransactionManager> tMan;
+   tMan->initialize(ttProv);
+   cmn::autoService<trans::iTransactionManager> _tm(*svcMan,*tMan);
 
    // bind command window
    tcat::typePtr<content::iContentManager> pConMan;

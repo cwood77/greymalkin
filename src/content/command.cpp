@@ -1,6 +1,7 @@
 #include "../cmn/service.hpp"
 #include "../cui/api.hpp"
 #include "../tcatlib/api.hpp"
+#include "../trans/api.hpp"
 #include "api-i.hpp"
 #include "api.hpp"
 
@@ -28,6 +29,14 @@ public:
          window::message m("saveAll",/*broadcast*/true);
          sendMessage(m);
          logMulticastMessageResult(m);
+      });
+      m.map(cui::keystroke('u'),[&](auto&)
+      {
+         tcat::typePtr<cmn::serviceManager> svcMan;
+         auto& tMan = svcMan->demand<trans::iTransactionManager>();
+         bool ok = tMan.undo();
+         m_log.push_back(ok ? "last change undone" : "nothing to undo");
+         svcMan->demand<window::iLayout>().draw();
       });
    }
 
